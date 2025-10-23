@@ -12,7 +12,6 @@ export default function Home() {
         height={40}
         priority
       />
-      <h1 className="text-2xl font-semibold">Testar</h1>
       <NewProperty />
     </div>
   );
