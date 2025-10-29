@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { apiGet, apiSend } from "@/utils/fetch";
-import type { Booking, NewBooking } from "@/types/booking";
-import type { Property } from "@/types/property";
+import { apiGet, apiSend } from "../../utils/fetch";
+import type { Booking, NewBooking } from "../../types/booking";
+import type { Property } from "../../types/property";
 import { useRouter, useSearchParams } from "next/navigation";
 
 export default function NewBookingPage() {

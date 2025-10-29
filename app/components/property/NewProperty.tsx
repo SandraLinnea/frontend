@@ -1,8 +1,8 @@
 "use client";
 
-import PropertyForm from "@/components/property/PropertyForm";
-import { useProperty } from "@/context/property";
-import type { NewProperty } from "@/types/property";
+import PropertyForm from "./PropertyForm";
+import { useProperty } from "../../context/property";
+import type { NewProperty } from "../../types/property";
 
 export default function NewProperty() {
   const property = useProperty();

@@ -20,7 +20,6 @@ export default function MyPropertiesPage() {
   const [loading, setLoading] = useState(true);
   const [msg, setMsg] = useState<string | null>(null);
 
-  // UI state för filtrering/sortering
   const [q, setQ] = useState("");
   const [city, setCity] = useState("");
   const [sortKey, setSortKey] = useState<SortKey>("title");
@@ -29,7 +28,6 @@ export default function MyPropertiesPage() {
   useEffect(() => {
     (async () => {
       try {
-        // Backend kan (och bör) RLS-filtrera på owner_id=auth.uid().
         const res = await fetch(`/api/property?limit=100&offset=0`, { credentials: "include" });
         const j = await res.json();
         if (!res.ok) throw new Error(j?.error ?? "Kunde inte hämta");
@@ -42,7 +40,6 @@ export default function MyPropertiesPage() {
     })();
   }, []);
 
-  // Klientside: filtrering + sortering
   const filteredSorted = useMemo(() => {
     const qNorm = q.trim().toLowerCase();
     let list = data.filter(p => {
@@ -85,7 +82,6 @@ export default function MyPropertiesPage() {
   if (loading) return <p>Laddar…</p>;
   if (msg) return <p>{msg}</p>;
 
-  // unika stadsnamn för enkel filterdropdown
   const cities = Array.from(
     new Set(data.map(d => (d.city ?? "").trim()).filter(Boolean))
   );

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { NewProperty } from "@/types/property";
+import type { NewProperty } from "../../types/property";
 
 type Props = {
   formTitle?: string;
