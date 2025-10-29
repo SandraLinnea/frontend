@@ -46,7 +46,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="sv">
       <body>
         <AuthProvider>
-          <header className="border-b">
+          <header className="border-b bg-[#d7c7c5] text-black">
             <div className="mx-auto max-w-4xl flex items-center justify-between p-4">
               <Link href="/" aria-label="Gå till start">
                 <Image
