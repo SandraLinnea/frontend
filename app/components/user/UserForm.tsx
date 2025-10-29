@@ -43,7 +43,6 @@ export default function UserForm({
     if (disabled) return;
     try {
       setLoading(true);
-      // Skicka inte med password om vi är i profile-läge
       const payload =
         showPassword ? values : { ...values, password: undefined };
       await onSave(payload);

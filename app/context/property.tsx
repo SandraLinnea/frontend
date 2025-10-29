@@ -31,20 +31,17 @@ export function PropertyProvider({ children }: PropsWithChildren) {
     try {
       const res = await service.createProperty(data);
       if (!res.ok) {
-        // Försök läsa felmeddelande från backend
         let message = "Kunde inte skapa property";
         try {
           const j = (await res.json()) as { error?: string };
           if (j?.error) message = j.error;
         } catch {
-          /* ignore JSON parse error */
         }
         throw new Error(message);
       }
 
       const property = (await res.json()) as Property;
 
-      // Bygg en stabil identitet för redirect: property_code (mänsklig) eller id (uuid)
       const code = property.property_code ?? property.id ?? "";
 
       toast.success(`Property '${property.title}' skapades!`);

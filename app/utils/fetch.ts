@@ -1,5 +1,7 @@
+import { apiUrl } from "@/lib/api";
+
 export async function apiGet<T>(url: string): Promise<T> {
-  const res = await fetch(`/api${url}`, { credentials: "include" });
+  const res = await fetch(apiUrl(`/api${url}`), { credentials: "include", cache: "no-store" });
   if (!res.ok) {
     const j = await res.json().catch(() => ({}));
     throw new Error(j.error ?? "Request failed");
@@ -12,9 +14,10 @@ export async function apiSend<T, B extends object>(
   method: "POST" | "PUT" | "DELETE",
   body?: B
 ): Promise<T> {
-  const res = await fetch(`/api${url}`, {
+  const res = await fetch(apiUrl(`/api${url}`), {
     method,
     credentials: "include",
+    cache: "no-store",
     headers: { "Content-Type": "application/json" },
     body: body ? JSON.stringify(body) : undefined,
   });

@@ -1,9 +1,9 @@
 export type BookingStatus = "pending" | "confirmed" | "cancelled";
 
 export type NewBooking = {
-  property_id: string;   // uuid ELLER property_code (backend stödjer båda)
-  start_date: string;    // "YYYY-MM-DD"
-  end_date: string;      // "YYYY-MM-DD"
+  property_id: string;
+  start_date: string;
+  end_date: string;
   guests?: number;
   note?: string;
 };

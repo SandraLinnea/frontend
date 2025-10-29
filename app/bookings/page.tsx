@@ -2,7 +2,6 @@ import { apiGet } from "@/utils/fetch";
 import type { Booking } from "@/types/booking";
 
 export default async function BookingsPage() {
-  // backend bör ha GET /booking som listar för inloggad user
   const list = await apiGet<Booking[]>("/booking");
 
   return (
