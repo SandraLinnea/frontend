@@ -1,4 +1,4 @@
-export type NewProperty = {
+/* export type NewProperty = {
   property_id?: string;
   title: string;
   description?: string;
@@ -11,6 +11,23 @@ export type NewProperty = {
 export type Property = NewProperty & {
   id?: string;
   property_code?: string;
+  created_at?: string;
+  updated_at?: string;
+};
+ */
+
+export type NewProperty = {
+  title: string;
+  description?: string;
+  city?: string;
+  country?: string;
+  price_per_night: number;
+  availability?: boolean;
+};
+
+export type Property = NewProperty & {
+  id?: string;              // uuid
+  property_code?: string;   // t.ex. PROP-000010034
   created_at?: string;
   updated_at?: string;
 };

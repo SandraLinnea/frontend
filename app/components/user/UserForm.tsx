@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { NewUser } from "@/types/user";
+import type { NewUser } from "../../types/user";
 
 type Mode = "register" | "profile";
 
