@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+/* import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -28,6 +28,40 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {children}
+      </body>
+    </html>
+  );
+} */
+
+  import "./globals.css";
+import Image from "next/image";
+import Link from "next/link";
+import { AuthProvider } from "@/context/auth";
+import Nav from "@/components/Nav";
+
+export const metadata = { title: "EastBNB" };
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="sv">
+      <body>
+        <AuthProvider>
+          <header className="border-b">
+            <div className="mx-auto max-w-4xl flex items-center justify-between p-4">
+              <Link href="/" aria-label="Gå till start">
+                <Image
+                  src="/EastBNBLogo.png"
+                  alt="EastBNB"
+                  width={160}
+                  height={36}
+                  priority
+                />
+              </Link>
+              <Nav />
+            </div>
+          </header>
+          <main className="mx-auto max-w-4xl p-4">{children}</main>
+        </AuthProvider>
       </body>
     </html>
   );

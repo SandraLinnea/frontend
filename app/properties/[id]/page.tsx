@@ -33,7 +33,7 @@ export default function PropertyDetail() {
   return (
     <div className="space-y-4">
       <h1 className="text-2xl font-semibold">{p.title}</h1>
-      <p>{p.city}, {p.country}</p>
+      <p className="text-gray-600">{p.city}, {p.country}</p>
       <p>{p.description}</p>
       <p className="font-medium">{p.price_per_night} kr/natt</p>
       <BookingForm propertyKey={p.property_code ?? p.id!} />
@@ -47,10 +47,12 @@ function BookingForm({ propertyKey }: { propertyKey: string }) {
   const [guests, setGuests] = useState(1);
   const [note, setNote] = useState("");
   const [msg, setMsg] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setMsg(null);
+    setLoading(true);
     const res = await fetch("/api/booking", {
       method: "POST",
       credentials: "include",
@@ -63,22 +65,55 @@ function BookingForm({ propertyKey }: { propertyKey: string }) {
         note,
       }),
     });
+    setLoading(false);
     if (res.status === 401) { setMsg("Du måste vara inloggad."); return; }
     if (!res.ok) { setMsg("Bokningen misslyckades."); return; }
     setMsg("Bokning skapad!");
   }
 
   return (
-    <form onSubmit={submit} className="space-y-2 border-t pt-4">
+    <form onSubmit={submit} className="space-y-3 border-t pt-4 max-w-md">
       <h2 className="text-lg font-semibold">Boka</h2>
-      <div className="flex gap-3">
-        <input type="date" value={start} onChange={e=>setStart(e.target.value)} className="rounded border px-3 py-2"/>
-        <input type="date" value={end} onChange={e=>setEnd(e.target.value)} className="rounded border px-3 py-2"/>
-        <input type="number" min={1} value={guests} onChange={e=>setGuests(Number(e.target.value))} className="w-20 rounded border px-3 py-2"/>
+      <div className="flex flex-col gap-3">
+      <label className="block mb-1 font-medium">Från datum</label>
+      <input
+        type="date"
+        className="w-full rounded border px-3 py-2"
+        value={start}
+        onChange={e => setStart(e.target.value)}
+        required
+      />
+      <label className="block mt-4 mb-1 font-medium">Till datum</label>
+      <input
+        type="date"
+        className="w-full rounded border px-3 py-2"
+        value={end}
+        onChange={e => setEnd(e.target.value)}
+        required
+      />
+      <label className="block mt-4 mb-1 font-medium">Antal personer</label>
+      <input
+        type="number"
+        min={1}
+        className="w-full rounded border px-3 py-2"
+        value={guests}
+        onChange={e => setGuests(Number(e.target.value))}
+        required
+      />
+        <textarea
+          className="w-full rounded border px-3 py-2"
+          placeholder="Meddelande (valfritt)"
+          value={note}
+          onChange={e=>setNote(e.target.value)}
+          rows={3}
+        />
       </div>
-      <textarea placeholder="Meddelande" value={note} onChange={e=>setNote(e.target.value)} className="w-full rounded border px-3 py-2"/>
-      <button className="rounded bg-black text-white px-4 py-2">Boka</button>
-      {msg && <p>{msg}</p>}
+
+      <button className="rounded bg-black text-white px-4 py-2" disabled={loading}>
+        {loading ? "Bokar…" : "Boka"}
+      </button>
+
+      {msg && <p className="text-sm">{msg}</p>}
     </form>
   );
 }

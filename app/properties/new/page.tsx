@@ -5,7 +5,7 @@ import AuthGate from "@/components/AuthGate";
 export default function NewPropertyPage() {
   return (
     <>
-      <h1>Skapa boende</h1>
+      <h1 className="text-2xl font-semibold mb-4">Skapa boende</h1>
       <AuthGate>
         <PropertyProvider>
           <NewProperty />

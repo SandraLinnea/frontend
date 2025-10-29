@@ -5,13 +5,15 @@ import { useAuth } from "@/context/auth";
 export default function Nav() {
   const { user, loading } = useAuth();
 
-  return (
-    <nav className="flex gap-6 mt-4">
-      <Link href="/properties">Utforska boenden</Link>
+  if (loading) return null;
 
-      {loading ? null : user ? (
+  return (
+    <nav className="flex flex-wrap items-center gap-4">
+      <Link href="/properties">Utforska boenden</Link>
+      {user ? (
         <>
-          <Link href="/properties/new">Lägg upp boende</Link>
+          <Link href="/properties/mine">Mina properties</Link>
+          <Link href="/bookings">Mina bokningar</Link>
           <Link href="/auth/logout">Logga ut</Link>
         </>
       ) : (
