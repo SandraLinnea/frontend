@@ -21,6 +21,7 @@ export default function PropertyForm({
     country: "",
     price_per_night: 0,
     availability: true,
+    image_url: "",
     ...initial,
   });
   const [loading, setLoading] = useState(false);
@@ -39,6 +40,7 @@ export default function PropertyForm({
         country: values.country ?? "",
         price_per_night: Number(values.price_per_night ?? 0),
         availability: Boolean(values.availability ?? true),
+        image_url: values.image_url || undefined,
       });
     } finally {
       setLoading(false);
@@ -46,13 +48,13 @@ export default function PropertyForm({
   }
 
   return (
-    <form onSubmit={submit} className="space-y-4 max-w-xl">
+    <form onSubmit={submit} className="card max-w-xl space-y-6">
       <h2 className="text-xl font-semibold">{formTitle}</h2>
 
       <div>
-        <label className="block text-sm font-medium mb-1">Titel</label>
+        <label className="block text-sm font-medium mb-2">Titel</label>
         <input
-          className="w-full rounded border px-3 py-2"
+          className="input"
           required
           value={values.title ?? ""}
           onChange={(e) => set("title", e.target.value)}
@@ -61,30 +63,51 @@ export default function PropertyForm({
       </div>
 
       <div>
-        <label className="block text-sm font-medium mb-1">Beskrivning</label>
+        <label className="block text-sm font-medium mb-2">Beskrivning</label>
         <textarea
-          className="w-full rounded border px-3 py-2"
+          className="input"
           rows={4}
           value={values.description ?? ""}
           onChange={(e) => set("description", e.target.value)}
           placeholder="Kort beskrivning av boendet…"
         />
       </div>
+      <div>
+        <label className="block text-sm font-medium mb-2">Bildlänk (URL)</label>
+        <input
+          className="input"
+          placeholder="https://exempel.se/bild.jpg"
+          value={values.image_url ?? ""}
+          onChange={(e) => set("image_url", e.target.value)}
+        />
+        {!!values.image_url && (
+          <div className="mt-3 rounded-2xl overflow-hidden border">
+            <img
+              src={values.image_url}
+              alt="Förhandsvisning"
+              className="w-full h-40 object-cover"
+              onError={(ev) => {
+                (ev.currentTarget as HTMLImageElement).style.display = "none";
+              }}
+            />
+          </div>
+        )}
+      </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium mb-1">Stad</label>
+          <label className="block text-sm font-medium mb-2">Stad</label>
           <input
-            className="w-full rounded border px-3 py-2"
+            className="input"
             value={values.city ?? ""}
             onChange={(e) => set("city", e.target.value)}
             placeholder="Ex: Småland"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1">Land</label>
+          <label className="block text-sm font-medium mb-2">Land</label>
           <input
-            className="w-full rounded border px-3 py-2"
+            className="input"
             value={values.country ?? ""}
             onChange={(e) => set("country", e.target.value)}
             placeholder="Ex: SE"
@@ -94,9 +117,11 @@ export default function PropertyForm({
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium mb-1">Pris per natt (kr)</label>
+          <label className="block text-sm font-medium mb-2">
+            Pris per natt (kr)
+          </label>
           <input
-            className="w-full rounded border px-3 py-2"
+            className="input"
             type="number"
             min={0}
             value={values.price_per_night ?? 0}
@@ -105,7 +130,7 @@ export default function PropertyForm({
           />
         </div>
 
-        <label className="flex items-center gap-2 mt-6">
+        <label className="flex items-center gap-2 mt-8">
           <input
             type="checkbox"
             checked={Boolean(values.availability ?? true)}
@@ -115,12 +140,12 @@ export default function PropertyForm({
         </label>
       </div>
 
-      <button
-        type="submit"
-        disabled={loading}
-        className="rounded bg-black text-white px-4 py-2 disabled:opacity-50"
-      >
-        {loading ? "Sparas..." : "Skapa"}
+      <button type="submit" disabled={loading} className="btn select-none">
+        <span className="btn-outer">
+          <span className="btn-inner">
+            <span>{loading ? "Sparas..." : "Skapa"}</span>
+          </span>
+        </span>
       </button>
     </form>
   );

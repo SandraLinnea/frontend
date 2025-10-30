@@ -20,7 +20,7 @@ export function UserProvider({ children }: PropsWithChildren) {
 
   const createUser: UserState["actions"]["createUser"] = async (data) => {
     try {
-      const user: User = await createUserApi(data); // får User direkt
+      const user: User = await createUserApi(data);
       const code = (user as any).user_id ?? (user as any).id;
 
       toast.success(`User '${user.name}' skapades!`);

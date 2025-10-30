@@ -10,7 +10,7 @@ type Property = {
 };
 
 export default function DeletePropertyPage() {
-  const { id } = useParams<{ id: string }>(); 
+  const { id } = useParams<{ id: string }>();
   const router = useRouter();
 
   const [property, setProperty] = useState<Property | null>(null);
@@ -53,29 +53,51 @@ export default function DeletePropertyPage() {
     }
   }
 
-  if (loading) return <p>Laddar…</p>;
-  if (err) return <p>{err}</p>;
+  if (loading) {
+    return (
+      <div className="card max-w-lg">
+        <p>Laddar…</p>
+      </div>
+    );
+  }
+
+  if (err) {
+    return (
+      <div className="card max-w-lg" role="alert" aria-live="polite">
+        <p>{err}</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-4">
+    <div className="card max-w-lg space-y-6">
       <h1 className="text-xl font-semibold">Radera boende</h1>
       <p>
-        Du är på väg att radera:{" "}
-        <b>{property?.title ?? id}</b>
+        Du är på väg att radera: <b>{property?.title ?? id}</b>
       </p>
-      <div className="flex gap-3">
+      <div className="flex flex-wrap gap-3">
         <button
           onClick={handleDelete}
           disabled={submitting}
-          className="rounded bg-red-600 text-white px-4 py-2 disabled:opacity-50"
+          className="btn btn-danger select-none disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {submitting ? "Raderar…" : "Ja, radera"}
+          <span className="btn-outer">
+            <span className="btn-inner">
+              <span>{submitting ? "Raderar…" : "Ja, radera"}</span>
+            </span>
+          </span>
         </button>
+
         <button
           onClick={() => router.back()}
-          className="rounded border px-4 py-2"
+          className="btn select-none"
+          type="button"
         >
-          Avbryt
+          <span className="btn-outer">
+            <span className="btn-inner">
+              <span>Avbryt</span>
+            </span>
+          </span>
         </button>
       </div>
     </div>

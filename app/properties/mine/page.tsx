@@ -10,6 +10,8 @@ type Property = {
   city?: string;
   country?: string;
   price_per_night: number;
+  availability?: boolean;
+  image_url?: string;
 };
 
 type SortKey = "title" | "price";
@@ -28,11 +30,13 @@ export default function MyPropertiesPage() {
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetch(`/api/property?limit=100&offset=0`, { credentials: "include" });
+        const res = await fetch(`/api/property?limit=100&offset=0&mine=1`, {
+          credentials: "include",
+        });
         const j = await res.json();
         if (!res.ok) throw new Error(j?.error ?? "Kunde inte hämta");
         setData(j.data ?? []);
-      } catch (e) {
+      } catch {
         setMsg("Kunde inte hämta dina boenden");
       } finally {
         setLoading(false);
@@ -42,23 +46,21 @@ export default function MyPropertiesPage() {
 
   const filteredSorted = useMemo(() => {
     const qNorm = q.trim().toLowerCase();
-    let list = data.filter(p => {
+    let list = data.filter((p) => {
       const matchQ =
         !qNorm ||
         p.title.toLowerCase().includes(qNorm) ||
         (p.city ?? "").toLowerCase().includes(qNorm) ||
         (p.country ?? "").toLowerCase().includes(qNorm);
-      const matchCity = !city || (p.city ?? "").toLowerCase() === city.toLowerCase();
+      const matchCity =
+        !city || (p.city ?? "").toLowerCase() === city.toLowerCase();
       return matchQ && matchCity;
     });
 
     list.sort((a, b) => {
       let res = 0;
-      if (sortKey === "title") {
-        res = a.title.localeCompare(b.title);
-      } else if (sortKey === "price") {
-        res = (a.price_per_night ?? 0) - (b.price_per_night ?? 0);
-      }
+      if (sortKey === "title") res = a.title.localeCompare(b.title);
+      else res = (a.price_per_night ?? 0) - (b.price_per_night ?? 0);
       return sortDir === "asc" ? res : -res;
     });
 
@@ -79,22 +81,21 @@ export default function MyPropertiesPage() {
     setData((d) => d.filter((p) => (p.property_code ?? p.id) !== code));
   }
 
-  if (loading) return <p>Laddar…</p>;
-  if (msg) return <p>{msg}</p>;
+  if (loading) return <div className="card max-w-2xl">Laddar…</div>;
+  if (msg) return <div className="card max-w-2xl">{msg}</div>;
 
   const cities = Array.from(
-    new Set(data.map(d => (d.city ?? "").trim()).filter(Boolean))
+    new Set(data.map((d) => (d.city ?? "").trim()).filter(Boolean))
   );
 
   return (
     <>
       <h1 className="text-2xl font-semibold">Mina properties</h1>
-
-      <div className="my-4 flex flex-wrap gap-3 items-end">
+      <div className="my-4 flex flex-wrap items-end gap-4">
         <div>
-          <label className="block text-sm font-medium mb-1">Sök</label>
+          <label className="block text-sm font-medium mb-2">Sök</label>
           <input
-            className="w-full rounded border px-3 py-2"
+            className="input"
             placeholder="Sök titel, stad eller land"
             value={q}
             onChange={(e) => setQ(e.target.value)}
@@ -102,21 +103,25 @@ export default function MyPropertiesPage() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">Stad</label>
+          <label className="block text-sm font-medium mb-2">Stad</label>
           <select
-            className="w-full rounded border px-3 py-2"
+            className="input"
             value={city}
             onChange={(e) => setCity(e.target.value)}
           >
             <option value="">Alla</option>
-            {cities.map(c => <option key={c} value={c}>{c}</option>)}
+            {cities.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
           </select>
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">Sortera på</label>
+          <label className="block text-sm font-medium mb-2">Sortera på</label>
           <select
-            className="w-full rounded border px-3 py-2"
+            className="input"
             value={sortKey}
             onChange={(e) => setSortKey(e.target.value as SortKey)}
           >
@@ -126,9 +131,9 @@ export default function MyPropertiesPage() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">Riktning</label>
+          <label className="block text-sm font-medium mb-2">Riktning</label>
           <select
-            className="w-full rounded border px-3 py-2"
+            className="input"
             value={sortDir}
             onChange={(e) => setSortDir(e.target.value as SortDir)}
           >
@@ -138,36 +143,78 @@ export default function MyPropertiesPage() {
         </div>
 
         <div className="ml-auto">
-          <Link className="rounded bg-black text-white px-4 py-2 inline-block" href="/properties/new">
-            + Skapa nytt
+          <Link href="/properties/new" className="btn select-none inline-block">
+            <span className="btn-outer">
+              <span className="btn-inner">
+                <span>+ Skapa nytt</span>
+              </span>
+            </span>
           </Link>
         </div>
       </div>
-
-      <ul className="mt-4 space-y-3">
+      <ul className="mt-4 grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {filteredSorted.map((p) => {
           const code = p.property_code ?? p.id!;
+          const available = p.availability ?? true;
           return (
-            <li key={code} className="border rounded p-3">
-              <div className="font-semibold">{p.title}</div>
-              <div className="text-sm text-gray-600">
-                {p.city ?? "-"}, {p.country ?? "-"} — {p.price_per_night} kr/natt
-              </div>
-              <div className="mt-2 flex gap-3">
-                <Link href={`/properties/${encodeURIComponent(code)}`} className="underline">
-                  Visa
-                </Link>
-                <Link href={`/properties/${encodeURIComponent(code)}/edit`} className="underline">
-                  Redigera
-                </Link>
-                <button onClick={() => handleDelete(code)} className="text-red-600 underline">
-                  Radera
-                </button>
+            <li key={code} className="card p-0 overflow-hidden">
+              {p.image_url ? (
+                <img
+                  src={p.image_url}
+                  alt={p.title}
+                  className="w-full h-40 object-cover rounded-t-[2rem]"
+                />
+              ) : (
+                <div className="w-full h-40 rounded-t-[2rem] bg-gradient-to-br from-gray-200 to-gray-100" />
+              )}
+
+              <div className="p-5">
+                <div className="flex items-start justify-between gap-3 mb-2">
+                  <div className="font-semibold">{p.title}</div>
+                  <span
+                    className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      available
+                        ? "bg-green-100 text-green-800"
+                        : "bg-red-100 text-red-800"
+                    }`}
+                  >
+                    {available ? "Tillgänglig" : "Otillgänglig"}
+                  </span>
+                </div>
+
+                <div className="text-sm text-gray-600">
+                  {p.city ?? "-"}, {p.country ?? "-"} — {p.price_per_night} kr/natt
+                </div>
+
+                <div className="mt-3 flex gap-3 text-sm">
+                  <Link
+                    href={`/properties/${encodeURIComponent(code)}`}
+                    className="underline"
+                  >
+                    Visa
+                  </Link>
+                  <Link
+                    href={`/properties/${encodeURIComponent(code)}/edit`}
+                    className="underline"
+                  >
+                    Redigera
+                  </Link>
+                  <button
+                    onClick={() => handleDelete(code)}
+                    className="underline text-red-600"
+                  >
+                    Radera
+                  </button>
+                </div>
               </div>
             </li>
           );
         })}
-        {filteredSorted.length === 0 && <li className="text-gray-500">Inga träffar…</li>}
+        {filteredSorted.length === 0 && (
+          <li className="card text-gray-500 sm:col-span-2 md:col-span-3 lg:col-span-4">
+            Inga träffar…
+          </li>
+        )}
       </ul>
     </>
   );

@@ -1,42 +1,7 @@
-/* "use client";
-
-import Image from "next/image";
-import Link from "next/link";
-import { useAuth } from "@/context/auth";
-
-export default function Home() {
-  const { user, loading } = useAuth();
-
-  return (
-    <div className="space-y-6">
-      <p>Välkommen till EastBNB!</p>
-
-      {!loading && (
-        <div className="space-x-4">
-          <Link href="/properties">Utforska boenden</Link>
-
-          {user ? (
-            <>
-              <Link href="/properties/mine">Mina properties</Link>
-              <Link href="/bookings">Mina bokningar</Link>
-            </>
-          ) : (
-            <>
-              <Link href="/auth/login">Logga in</Link>
-              <Link href="/auth/register">Skapa konto</Link>
-            </>
-          )}
-        </div>
-      )}
-    </div>
-  );
-} */
-
 "use client";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { useAuth } from "@/context/auth";
 
 type Property = {
@@ -47,6 +12,7 @@ type Property = {
   country?: string;
   price_per_night: number;
   availability?: boolean;
+  image_url?: string;
 };
 
 export default function HomePage() {
@@ -64,8 +30,7 @@ export default function HomePage() {
         if (!res.ok) throw new Error("Kunde inte hämta boenden");
         const data = await res.json();
         setProperties(data.data ?? []);
-      } catch (err) {
-        console.error(err);
+      } catch {
         setError("Ett fel uppstod när boenden skulle hämtas");
       } finally {
         setLoading(false);
@@ -73,41 +38,66 @@ export default function HomePage() {
     })();
   }, []);
 
-  if (loading) return <p>Laddar boenden…</p>;
-  if (error) return <p>{error}</p>;
+  if (loading) return <div className="card max-w-2xl">Laddar boenden…</div>;
+  if (error) return <div className="card max-w-2xl">{error}</div>;
 
   return (
     <div className="space-y-6">
-      <p className="text-center text-lg font-medium">
-        Välkommen till EastBNB!
-      </p>
+      <p className="text-center text-lg font-medium">Välkommen till EastBNB!</p>
 
       {properties.length === 0 ? (
-        <p className="text-center text-gray-500">
+        <div className="card text-center text-gray-500">
           Inga boenden hittades just nu.
-        </p>
+        </div>
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {properties.map((p) => {
             const code = p.property_code ?? p.id!;
+            const available = p.availability ?? true;
+
             return (
-              <div
-                key={code}
-                className="rounded border p-4 shadow-sm hover:shadow-md transition"
-              >
-                <h2 className="text-lg font-semibold mb-2">{p.title}</h2>
+              <div key={code} className="card">
+                {p.image_url ? (
+                  <img
+                    src={p.image_url}
+                    alt={p.title}
+                    className="w-full h-36 object-cover rounded-t-[2rem]"
+                  />
+                ) : (
+                  <div className="w-full h-36 rounded-t-[2rem] bg-gradient-to-br from-gray-200 to-gray-100" />
+                )}
+
+                <div className="flex items-start justify-between gap-3 mb-2 mt-2">
+                  <h2 className="text-lg font-semibold">{p.title}</h2>
+                  <span
+                    className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      available
+                        ? "bg-green-100 text-green-800"
+                        : "bg-red-100 text-red-800"
+                    }`}
+                    title={available ? "Tillgänglig" : "Otillgänglig"}
+                  >
+                    {available ? "Tillgänglig" : "Otillgänglig"}
+                  </span>
+                </div>
+
                 <p className="text-sm text-gray-600 mb-1">
                   {p.city ?? "-"}, {p.country ?? "-"}
                 </p>
-                <p className="text-sm font-medium mb-2">
+                <p className="text-sm font-medium mb-4">
                   {p.price_per_night} kr/natt
                 </p>
+
                 {user ? (
                   <Link
                     href={`/properties/${encodeURIComponent(code)}`}
-                    className="rounded bg-black text-white px-3 py-2 text-sm inline-block"
+                    className="btn select-none inline-block"
                   >
-                    Se mer / boka
+                    <span className="btn-outer">
+                      <span className="btn-inner">
+                        <span>Se mer / boka</span>
+                      </span>
+                    </span>
                   </Link>
                 ) : (
                   <Link

@@ -5,6 +5,7 @@ export type NewProperty = {
   country?: string;
   price_per_night: number;
   availability?: boolean;
+  image_url?: string;
 };
 
 export type Property = NewProperty & {

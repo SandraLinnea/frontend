@@ -5,12 +5,12 @@
   --foreground: #171717;
 }
 
-@theme inline {
+/* @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
+} */
 
 @media (prefers-color-scheme: dark) {
   :root {
@@ -23,4 +23,119 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+
+
+@layer components {
+  /* === BUTTON === */
+  .btn {
+    @apply relative cursor-pointer rounded-full bg-[rgba(0,0,0,0.75)] transition-all duration-300 select-none;
+    box-shadow:
+      -0.15em -0.15em 0.15em -0.075em rgba(5, 5, 5, 0.25),
+      0.0375em 0.0375em 0.0675em 0 rgba(5, 5, 5, 0.1);
+  }
+
+  .btn::after {
+    content: "";
+    position: absolute;
+    z-index: 0;
+    width: calc(100% + 0.3em);
+    height: calc(100% + 0.3em);
+    top: -0.15em;
+    left: -0.15em;
+    border-radius: inherit;
+    background: linear-gradient(-135deg, rgba(5, 5, 5, 0.5), transparent 20%, transparent 100%);
+    filter: blur(0.0125em);
+    opacity: 0.25;
+    mix-blend-mode: multiply;
+  }
+
+  .btn-outer {
+    position: relative;
+    z-index: 1;
+    border-radius: inherit;
+    transition: box-shadow 300ms ease;
+    box-shadow:
+      0 0.05em 0.05em -0.01em rgba(5, 5, 5, 1),
+      0 0.01em 0.01em -0.01em rgba(5, 5, 5, 0.5),
+      0.15em 0.3em 0.1em -0.01em rgba(5, 5, 5, 0.25);
+  }
+
+  .btn:hover .btn-outer {
+    box-shadow: none;
+  }
+
+  .btn-inner {
+    --inset: 0.035em;
+    position: relative;
+    z-index: 1;
+    border-radius: inherit;
+    padding: 1em 1.5em;
+    background-image: linear-gradient(135deg, rgba(230,230,230,1), rgba(180,180,180,1));
+    transition:
+      box-shadow 300ms ease,
+      clip-path 250ms ease,
+      background-image 250ms ease,
+      transform 250ms ease;
+    will-change: box-shadow, clip-path, background-image, transform;
+    clip-path: inset(0 0 0 0 round 100em);
+    box-shadow:
+      0 0 0 0 inset rgba(5,5,5,0.1),
+      -0.05em -0.05em 0.05em 0 inset rgba(5,5,5,0.25),
+      0 0 0 0 inset rgba(5,5,5,0.1),
+      0 0 0.05em 0.2em inset rgba(255,255,255,0.25),
+      0.025em 0.05em 0.1em 0 inset rgba(255,255,255,1),
+      0.12em 0.12em 0.12em inset rgba(255,255,255,0.25),
+      -0.075em -0.25em 0.25em 0.1em inset rgba(5,5,5,0.25);
+  }
+
+  .btn:hover .btn-inner {
+    clip-path: inset(0.0625em 0.0625em 0.0625em 0.0625em round 100em);
+    box-shadow:
+      0.1em 0.15em 0.05em 0 inset rgba(5,5,5,0.75),
+      -0.025em -0.03em 0.05em 0.025em inset rgba(5,5,5,0.5),
+      0.25em 0.25em 0.2em 0 inset rgba(5,5,5,0.5),
+      0 0 0.05em 0.5em inset rgba(255,255,255,0.15),
+      0.12em 0.12em 0.12em inset rgba(255,255,255,0.25),
+      -0.075em -0.12em 0.2em 0.1em inset rgba(5,5,5,0.25);
+  }
+
+  .btn-inner span {
+    position: relative;
+    z-index: 4;
+    font-family: "Inter", sans-serif;
+    letter-spacing: -0.05em;
+    font-weight: 500;
+    background-image: linear-gradient(135deg, rgba(25,25,25,1), rgba(75,75,75,1));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    transition: transform 250ms ease;
+    text-shadow: rgba(0,0,0,0.1) 0 0 0.1em;
+  }
+
+  .btn:hover .btn-inner span {
+    transform: scale(0.975);
+  }
+
+  .btn:active .btn-inner {
+    transform: scale(0.975);
+  }
+
+  /* === INPUT === */
+  .input {
+    @apply w-full border-none rounded-[1rem] bg-[#e8e8e8] p-4 text-gray-900 transition-all duration-300 outline-none;
+    box-shadow: 20px 20px 60px #c5c5c5, -20px -20px 60px #ffffff;
+  }
+
+  .input:focus {
+    box-shadow: inset 20px 20px 60px #c5c5c5, inset -20px -20px 60px #ffffff;
+  }
+
+  /* === CARD === */
+  .card {
+    @apply rounded-[50px] bg-[#e0e0e0] p-6 transition-all;
+    box-shadow: 20px 20px 60px #bebebe, -20px -20px 60px #ffffff;
+  }
 }
