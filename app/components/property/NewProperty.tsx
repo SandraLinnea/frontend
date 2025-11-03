@@ -1,6 +1,6 @@
 "use client";
 
-import PropertyForm from "./PropertyForm";
+import PropertyForm from "./PropertyFormV2";
 import { useProperty } from "../../context/property";
 import type { NewProperty } from "../../types/property";
 //test
