@@ -92,26 +92,42 @@ export default function LoginPage() {
  */
 
 "use client";
+
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { apiSend } from "@/utils/fetch";
+import { useAuth } from "@/context/auth";
+
+type LoginBody = {
+  email: string;
+  password: string;
+};
+
+type LoginResponse = {
+  user: {
+    id: string;
+    email: string | null;
+  };
+};
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
   const [msg, setMsg] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(false);
   const router = useRouter();
+  const { refresh } = useAuth();
 
-  async function submit(e: React.FormEvent) {
+  async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setMsg(null);
     setLoading(true);
     try {
-      await apiSend("/auth/login", "POST", { email, password });
+      await apiSend<LoginResponse, LoginBody>("/auth/login", "POST", { email, password });
+      await refresh(); // uppdatera sessionen i AuthContext direkt efter lyckad inloggning
       router.push("/properties");
-    } catch {
-      setMsg("Inloggning misslyckades");
+    } catch (err) {
+      setMsg(err instanceof Error ? err.message : "Inloggning misslyckades");
     } finally {
       setLoading(false);
     }
