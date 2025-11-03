@@ -18,7 +18,7 @@ export default function Nav() {
         {user ? (
           <>
             <Link href="/properties/mine" className={linkClass}>
-              Mina properties
+              Mina boenden
             </Link>
             <Link href="/bookings" className={linkClass}>
               Mina bokningar
