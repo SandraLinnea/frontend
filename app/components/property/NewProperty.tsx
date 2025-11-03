@@ -4,7 +4,7 @@ import PropertyForm from "./PropertyForm";
 import { useProperty } from "../../context/property";
 import type { NewProperty } from "../../types/property";
 
-export default function NewProperty() {
+export default function NewPropertyView() {
   const property = useProperty();
   const onCreate = async (data: Partial<NewProperty>) => {
     await property.actions.createProperty(data);
