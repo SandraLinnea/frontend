@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/auth";
+import { apiSend } from "@/utils/fetch";
 
 function LogoutInner() {
   const router = useRouter();
@@ -13,16 +14,9 @@ function LogoutInner() {
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetch("/api/auth/logout", {
-          method: "POST",
-          credentials: "include",
-        });
-        if (!res.ok) {
-          const j = await res.json().catch(() => ({}));
-          throw new Error(j.error ?? "Utloggning misslyckades");
-        }
-      } catch (e) {
-        setMsg(e instanceof Error ? e.message : "Utloggning misslyckades");
+        await apiSend("/auth/logout", "POST");
+      } catch {
+        setMsg("Utloggning misslyckades");
       } finally {
         await refresh();
         const back = search.get("redirect") ?? "/";
