@@ -30,19 +30,23 @@ export async function apiSend<T, B extends object>(
  */
 
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? "http://localhost:3002";
 
-function makeUrl(path: string): string {
-  return path.startsWith("http") ? path : `${API_BASE}${path}`;
+function toApiPath(path: string): string {
+  if (path.startsWith("http")) return path;
+
+  return path.startsWith("/api/")
+    ? path
+    : `/api${path.startsWith("/") ? path : `/${path}`}`;
 }
 
 export async function apiGet<T>(path: string): Promise<T> {
-  const res = await fetch(makeUrl(path), { credentials: "include", cache: "no-store" });
+  const url = toApiPath(path);
+  const res = await fetch(url, { credentials: "include", cache: "no-store" });
   if (!res.ok) {
-    const j = await res.json().catch(() => ({}));
-    throw new Error(j.error ?? `GET ${path} failed (${res.status})`);
+    const j = await res.json().catch(() => ({} as Record<string, unknown>));
+    throw new Error(j && typeof j === "object" && "error" in j ? String((j as { error?: unknown }).error) : `GET ${url} failed (${res.status})`);
   }
-  return res.json() as Promise<T>;
+  return (await res.json()) as T;
 }
 
 export async function apiSend<T, B extends object>(
@@ -50,7 +54,8 @@ export async function apiSend<T, B extends object>(
   method: "POST" | "PUT" | "DELETE",
   body?: B
 ): Promise<T> {
-  const res = await fetch(makeUrl(path), {
+  const url = toApiPath(path);
+  const res = await fetch(url, {
     method,
     credentials: "include",
     cache: "no-store",
@@ -58,8 +63,10 @@ export async function apiSend<T, B extends object>(
     body: body ? JSON.stringify(body) : undefined,
   });
   if (!res.ok) {
-    const j = await res.json().catch(() => ({}));
-    throw new Error(j.error ?? `${method} ${path} failed (${res.status})`);
+    const j = await res.json().catch(() => ({} as Record<string, unknown>));
+    throw new Error(j && typeof j === "object" && "error" in j ? String((j as { error?: unknown }).error) : `${method} ${url} failed (${res.status})`);
   }
-  return (res.status === 204 ? (undefined as T) : (res.json() as Promise<T>));
+  if (res.status === 204) return undefined as T;
+  return (await res.json()) as T;
 }
+
