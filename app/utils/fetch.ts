@@ -43,116 +43,74 @@ export async function apiSend<T, B extends object>(
 
 
 
-const fromEnv = (process.env.NEXT_PUBLIC_API_BASE || "").replace(/\/+$/, "");
+const ENV_BASE = (process.env.NEXT_PUBLIC_API_BASE || "").replace(/\/+$/, "");
 
-const isBrowser = typeof window !== "undefined";
-const isDevHost =
-  isBrowser &&
-  (window.location.hostname.includes("localhost") ||
-    window.location.hostname === "127.0.0.1" ||
-    window.location.hostname === "127.1.1");
-
-const devFallbackBase = "http://localhost:3002";
-
-export const API_BASE =
-  fromEnv || (isBrowser ? (isDevHost ? devFallbackBase : "") : "");
+const DEV_BASE = "http://localhost:3002";
 
 export function toApiUrl(path: string): string {
-  if (!path) return API_BASE || "/";
-  if (path.startsWith("http://") || path.startsWith("https://")) return path;
+  const base =
+    typeof window !== "undefined" && window.location.hostname === "localhost"
+      ? DEV_BASE
+      : ENV_BASE;
 
   const p = path.startsWith("/") ? path : `/${path}`;
-  return API_BASE ? `${API_BASE}${p}` : p;
+  return base ? `${base}${p}` : p;
 }
+
+export class ApiError extends Error {
+  readonly status: number;
+  readonly url: string;
+  constructor(message: string, status: number, url: string) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+    this.url = url;
+  }
+}
+
 async function readJsonSafe<T>(res: Response): Promise<T> {
   if (res.status === 204) return undefined as T;
   const text = await res.text();
-  return (text ? JSON.parse(text) : ({} as T)) as T;
+  return (text ? (JSON.parse(text) as unknown as T) : ({} as T));
 }
 
 export async function apiGet<T>(path: string): Promise<T> {
   const url = toApiUrl(path);
-  const res = await fetch(url, {
-    credentials: "include",
-    cache: "no-store",
-  });
-
+  const res = await fetch(url, { credentials: "include", cache: "no-store" });
   if (!res.ok) {
-    let msg = `GET ${url} failed (${res.status})`;
-    try {
-      const j = await res.clone().json();
-      if (j && typeof j === "object" && "error" in j) msg = String(j.error);
-    } catch {}
-    throw new Error(msg);
+    const errMsg = await extractErrorMessage(res, `GET ${url} failed`);
+    throw new ApiError(errMsg, res.status, url);
   }
   return readJsonSafe<T>(res);
 }
 
-export async function apiSend<T, B extends Record<string, any>>(
+export async function apiSend<T, B extends Record<string, unknown>>(
   path: string,
   method: "POST" | "PUT" | "DELETE",
-  body?: B,
-  init?: RequestInit
+  body?: B
 ): Promise<T> {
   const url = toApiUrl(path);
   const res = await fetch(url, {
     method,
     credentials: "include",
     cache: "no-store",
-    headers: {
-      "Content-Type": "application/json",
-      ...(init?.headers || {}),
-    },
+    headers: { "Content-Type": "application/json" },
     body: body ? JSON.stringify(body) : undefined,
-    ...init,
   });
 
   if (!res.ok) {
-    let msg = `${method} ${url} failed (${res.status})`;
-    try {
-      const j = await res.clone().json();
-      if (j && typeof j === "object" && "error" in j) msg = String(j.error);
-    } catch {}
-    throw new Error(msg);
+    const errMsg = await extractErrorMessage(res, `${method} ${url} failed`);
+    throw new ApiError(errMsg, res.status, url);
   }
   return readJsonSafe<T>(res);
 }
 
-export async function backendFetch<
-  BodyT extends Record<string, any>,
-  ResDataT = unknown
->(path: string, init?: RequestInit, body?: BodyT) {
-  const url = toApiUrl(path);
-
-  const reqInit: RequestInit = {
-    credentials: "include",
-    cache: "no-store",
-    ...(init || {}),
-    headers: {
-      "Content-Type": "application/json",
-      ...(init?.headers || {}),
-    },
-  };
-
-  if (body) reqInit.body = JSON.stringify(body);
-
-  const res = await fetch(url, reqInit);
-  const text = await res.text();
-
-  let data:
-    | { message: string; status?: number; data?: ResDataT; token?: string }
-    | any;
-
+async function extractErrorMessage(res: Response, fallback: string): Promise<string> {
   try {
-    data = text ? JSON.parse(text) : {};
-  } catch (error) {
-    console.error(`Failed parsing JSON [${url}]`, text);
-    data = { message: text };
+    const data = (await res.clone().json()) as { error?: unknown; message?: unknown };
+    if (typeof data.error === "string") return data.error;
+    if (typeof data.message === "string") return data.message;
+  } catch {
   }
-
-  return {
-  res,
-  data: data as { message?: string; status?: number; data?: ResDataT; token?: string }
-};
+  return fallback;
 }
-
