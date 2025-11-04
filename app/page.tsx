@@ -123,7 +123,7 @@ export default function HomePage() {
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/context/auth";
-import { apiGet } from "@/utils/fetch"; // ✅ använd vår helper
+import { apiGet } from "@/utils/fetch"; 
 
 type Property = {
   id?: string;

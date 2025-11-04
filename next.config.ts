@@ -8,17 +8,7 @@ export default nextConfig; */
 
 import type { NextConfig } from "next";
 
-const API_BASE = process.env.API_BASE ?? "http://localhost:3002";
+console.log("[build] API_BASE =", process.env.API_BASE);
 
-const nextConfig: NextConfig = {
-  async rewrites() {
-    return [
-      {
-        source: "/api/:path*",
-        destination: `${API_BASE}/:path*`,
-      },
-    ];
-  },
-};
-
+const nextConfig: NextConfig = {};
 export default nextConfig;

@@ -124,7 +124,7 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await apiSend<LoginResponse, LoginBody>("/auth/login", "POST", { email, password });
-      await refresh(); // uppdatera sessionen i AuthContext direkt efter lyckad inloggning
+      await refresh();
       router.push("/properties");
     } catch (err) {
       setMsg(err instanceof Error ? err.message : "Inloggning misslyckades");
