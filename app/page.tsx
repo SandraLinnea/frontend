@@ -22,8 +22,7 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    (async () => {
+  useEffect(() => {(async () => {
       try {
         const data = await apiGet<{ data: Property[] }>("/property?limit=50&offset=0");
         setProperties(data.data ?? []);
