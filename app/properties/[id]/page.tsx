@@ -81,7 +81,7 @@ function BookingForm({ propertyKey }: { propertyKey: string }) {
       setGuests(1);
       setNote("");
     } catch {
-      setMsg("Nätverksfel. Försök igen.");
+      setMsg("Du måste vara inloggad för att skapa en bokning.");
     } finally {
       setLoading(false);
     }
